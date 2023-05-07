@@ -22,3 +22,9 @@ func (j *JWT) KeyFunc(t *jwt.Token) (interface{}, error) { return j.secret, nil 
 func New(secret []byte) *JWT {
 	return &JWT{secret: secret}
 }
+
+const DefaultSecret = "TESTING"
+
+func NewDefault() *JWT {
+	return New([]byte(DefaultSecret))
+}
