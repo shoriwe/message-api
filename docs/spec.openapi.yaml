@@ -1,0 +1,300 @@
+openapi: 3.0.3
+info:
+  title: message-api
+  description: |-
+    Documentation for the [message-api](https://github.com/shoriwe/message-api) API.
+  license:
+    name: MIT
+  version: TBA
+tags:
+  - name: Public
+    description: Public API routes
+  - name: Session
+    description: Operations over the current session
+  - name: Users
+    description: Routes for querying information about users
+  - name: Message
+    description: Message operations
+paths:
+  # Clients
+  /api/register:
+    put:
+      description: Register a new user into the APP
+      tags:
+        - Public
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                profilePicture:
+                  type: string
+                name:
+                  type: string
+                phoneNumber:
+                  type: string
+                job:
+                  type: string
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Something went wrong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+  /api/login:
+    post:
+      description: User Login
+      tags:
+        - Public
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                firebaseToken:
+                  type: string
+      responses:
+        "200":
+          description: Login succeed, JWT is the 'result' field
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Something went wrong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+  /api/logout:
+    post:
+      description: User Logout
+      security:
+        - sessionHeader: []
+      tags:
+        - Session
+      responses:
+        "200":
+          description: Logout succeed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Something went wrong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+  /api/users:
+    post:
+      description: Search for users
+      security:
+        - sessionHeader: []
+      tags:
+        - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                page:
+                  type: number
+                pageSize:
+                  type: number
+                target:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    name:
+                      type: string
+                    job:
+                      type: string
+                    phoneNumber:
+                      type: string
+      responses:
+        "200":
+          description: Users results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: number
+                  totalPages:
+                    type: number
+                  count:
+                    type: number
+                  results:
+                    $ref: "#/components/schemas/user"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Something went wrong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+  /api/picture/{uuid}:
+    get:
+      description: Download profile picture
+      security:
+        - sessionHeader: []
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Image bytes
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Something went wrong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+  /api/message:
+    put:
+      description: Sent message to user
+      security:
+        - sessionHeader: []
+      tags:
+        - Message
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                recipientUUID:
+                  type: string
+                title:
+                  type: string
+                body:
+                  type: string
+      responses:
+        "200":
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Something went wrong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+
+components:
+  securitySchemes:
+    sessionHeader:
+      type: http
+      scheme: bearer
+  schemas:
+    response:
+      type: object
+      properties:
+        result:
+          type: string
+    user:
+      type: object
+      properties:
+        uuid:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        phoneNumber:
+          type: string
+        job:
+          type: string
