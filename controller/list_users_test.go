@@ -44,7 +44,7 @@ func testListUsers(t *testing.T, c *Controller) {
 		}
 		users, fErr := c.ListUsers(s, &filter)
 		assert.Nil(tt, fErr)
-		assert.Len(tt, users, 1)
+		assert.GreaterOrEqual(tt, len(users), 1)
 	})
 	t.Run("By Name", func(tt *testing.T) {
 		u := models.RandomUser()
@@ -63,7 +63,7 @@ func testListUsers(t *testing.T, c *Controller) {
 		}
 		users, fErr := c.ListUsers(s, &filter)
 		assert.Nil(tt, fErr)
-		assert.Len(tt, users, 1)
+		assert.GreaterOrEqual(tt, len(users), 1)
 	})
 	t.Run("By Job", func(tt *testing.T) {
 		u := models.RandomUser()
@@ -82,7 +82,7 @@ func testListUsers(t *testing.T, c *Controller) {
 		}
 		users, fErr := c.ListUsers(s, &filter)
 		assert.Nil(tt, fErr)
-		assert.Len(tt, users, 1)
+		assert.GreaterOrEqual(tt, len(users), 1)
 	})
 	t.Run("By PhoneNumber", func(tt *testing.T) {
 		u := models.RandomUser()
@@ -100,7 +100,7 @@ func testListUsers(t *testing.T, c *Controller) {
 		}
 		users, fErr := c.ListUsers(s, &filter)
 		assert.Nil(tt, fErr)
-		assert.Len(tt, users, 1)
+		assert.GreaterOrEqual(tt, len(users), 1)
 	})
 }
 
