@@ -1,0 +1,25 @@
+version: "3.3"
+
+networks:
+  message-api:
+    external: false
+
+services:
+  message-api:
+    networks:
+      - message-api
+    container_name: message-api
+    restart: unless-stopped
+    image: ghcr.io/shoriwe/message-api:latest
+    env_file:
+      - example.env
+    ports:
+      - "127.0.0.1:5000:5000"
+    volumes:
+      - type: bind
+        source: ./database
+        target: /message-api-config/database
+      - type: bind
+        source: ./firebase-adminsdk.json
+        target: /message-api-config/configuration/firebase-adminsdk.json
+        read_only: true
