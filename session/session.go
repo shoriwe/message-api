@@ -1,7 +1,6 @@
 package session
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -56,27 +55,4 @@ func NewSession(userUUID uuid.UUID, firebaseToken string) *Session {
 		expiration:    now.Add(DefaultExpirationDelta),
 		notBefore:     now,
 	}
-}
-
-func NewSessionFromToken(token *jwt.Token) (*Session, error) {
-	anyFirebaseToken, ftFound := token.Claims.(jwt.MapClaims)["firebaseToken"]
-	if !ftFound {
-		return nil, fmt.Errorf("expecting firebaseToken")
-	}
-	firebaseToken, ok := anyFirebaseToken.(string)
-	if !ok {
-		return nil, fmt.Errorf("expecting firebaseToken as string")
-	}
-	anyUserUUID, uFound := token.Claims.(jwt.MapClaims)["userUUID"]
-	if !uFound {
-		return nil, fmt.Errorf("expecting userUUID")
-	}
-	stringUserUUID, ok := anyUserUUID.(string)
-	if !ok {
-		return nil, fmt.Errorf("expecting userUUID as string")
-	}
-	userUUID, err := uuid.FromString(stringUserUUID)
-	return NewSession(
-		userUUID, firebaseToken,
-	), err
 }
