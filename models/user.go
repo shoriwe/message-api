@@ -4,61 +4,40 @@ import (
 	"fmt"
 	"net/mail"
 	"regexp"
-	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
-	"github.com/golang-jwt/jwt/v5"
-	uuid "github.com/satori/go.uuid"
 	"github.com/shoriwe/message-api/common/random"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
-const (
-	DefaultPasswordCost    = 12
-	DefaultExpirationDelta = 30 * 24 * time.Hour
-)
+const DefaultPasswordCost = 12
 
 type User struct {
 	Model
-	Email            string    `json:"email" gorm:"unique;not null"`
-	Password         string    `json:"password" gorm:"-"`
+	Email            *string   `json:"email,omitempty" gorm:"unique;not null"`
+	Password         *string   `json:"password,omitempty" gorm:"-"`
 	PasswordHash     []byte    `json:"-" gorm:"not null;"`
-	ProfilePicture   []byte    `json:"profilePicture" gorm:"not null"`
-	Name             string    `json:"name" gorm:"not null"`
-	PhoneNumber      string    `json:"phoneNumber" gorm:"unique;not null"`
-	Job              string    `json:"job" gorm:"not null"`
-	Devices          []Device  `json:"devices" gorm:"constraint:OnDelete:CASCADE;"`
-	MessagesSent     []Message `json:"messagesSent" gorm:"constraint:OnDelete:CASCADE;foreignKey:SenderUUID"`
-	MessagesReceived []Message `json:"messagesReceived" gorm:"constraint:OnDelete:CASCADE;foreignKey:RecipientUUID"`
+	ProfilePicture   []byte    `json:"profilePicture,omitempty" gorm:"not null"`
+	Name             *string   `json:"name,omitempty" gorm:"not null"`
+	PhoneNumber      *string   `json:"phoneNumber,omitempty" gorm:"unique;not null"`
+	Job              *string   `json:"job,omitempty" gorm:"not null"`
+	Devices          []Device  `json:"devices,omitempty" gorm:"constraint:OnDelete:CASCADE;"`
+	MessagesSent     []Message `json:"messagesSent,omitempty" gorm:"constraint:OnDelete:CASCADE;foreignKey:SenderUUID"`
+	MessagesReceived []Message `json:"messagesReceived,omitempty" gorm:"constraint:OnDelete:CASCADE;foreignKey:RecipientUUID"`
 }
 
 func RandomUser() *User {
+	password := random.String()[:72]
 	person := gofakeit.NewCrypto().Person()
 	return &User{
-		Password:       random.String()[:72],
-		Email:          person.Contact.Email,
+		Password:       &password,
+		Email:          &person.Contact.Email,
 		ProfilePicture: []byte("JPEG IMAGE"),
-		Name:           person.FirstName,
-		PhoneNumber:    person.Contact.Phone,
-		Job:            person.Job.Title,
+		Name:           &person.FirstName,
+		PhoneNumber:    &person.Contact.Phone,
+		Job:            &person.Job.Title,
 	}
-}
-
-func (u *User) Claims() jwt.MapClaims {
-	return jwt.MapClaims{
-		"uuid": u.UUID.String(),
-		"exp":  time.Now().Add(DefaultExpirationDelta).Unix(),
-	}
-}
-
-func (u *User) FromClaims(m jwt.MapClaims) error {
-	userUUID, ok := m["uuid"]
-	if !ok {
-		return fmt.Errorf("incomplete UUID")
-	}
-	u.UUID = uuid.FromStringOrNil(userUUID.(string))
-	return nil
 }
 
 func (u *User) Authenticate(password string) bool {
@@ -70,12 +49,14 @@ func (u *User) BeforeSave(tx *gorm.DB) error {
 	if bErr != nil {
 		return bErr
 	}
-	if len(u.Password) == 0 {
-		return nil
+	if u.Password != nil && len(*u.Password) > 0 {
+		var err error
+		u.PasswordHash, err = bcrypt.GenerateFromPassword([]byte(*u.Password), DefaultPasswordCost)
+		if err != nil {
+			return err
+		}
 	}
-	var err error
-	u.PasswordHash, err = bcrypt.GenerateFromPassword([]byte(u.Password), DefaultPasswordCost)
-	return err
+	return nil
 }
 
 var phoneRegex = regexp.MustCompile(`(?m)^\d{2,18}$`)
@@ -93,10 +74,16 @@ func (u *User) BeforeCreate(tx *gorm.DB) error {
 	if len(u.PasswordHash) == 0 {
 		return fmt.Errorf("password is empty")
 	}
-	if !phoneRegex.MatchString(u.PhoneNumber) {
+	if u.PhoneNumber == nil {
+		return fmt.Errorf("phone is empty")
+	}
+	if !phoneRegex.MatchString(*u.PhoneNumber) {
 		return fmt.Errorf("invalid phone")
 	}
-	_, pErr := mail.ParseAddress(u.Email)
+	if u.Email == nil {
+		return fmt.Errorf("email field is empty")
+	}
+	_, pErr := mail.ParseAddress(*u.Email)
 	if pErr != nil {
 		return pErr
 	}
