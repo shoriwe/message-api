@@ -24,3 +24,12 @@ func RandomMessage(sender, recipient *User) *Message {
 		Body:          random.String(),
 	}
 }
+
+type MessageResponse struct {
+	Model
+	Message     Message   `json:"message" gorm:"foreignKey:MessageUUID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	MessageUUID uuid.UUID `json:"messageUUID" gorm:"not null;"`
+	Success     bool      `json:"success" gorm:"not null"`
+	FirebaseId  string    `json:"firebaseId" gorm:"not null"`
+	Error       string    `json:"error" gorm:"not null"`
+}
