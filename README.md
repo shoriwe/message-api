@@ -49,3 +49,8 @@ message-api :5000
 go install github.com/shoriwe/message-api@latest
 ```
 
+## Coverage
+
+| [![coverage](https://codecov.io/gh/shoriwe/message-api/branch/main/graphs/sunburst.svg?token=RU4KKCQPUV)](https://app.codecov.io/gh/shoriwe/message-api) | [![coverage](https://codecov.io/gh/shoriwe/message-api/branch/main/graphs/tree.svg?token=RU4KKCQPUV)](https://app.codecov.io/gh/shoriwe/message-api) |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+
