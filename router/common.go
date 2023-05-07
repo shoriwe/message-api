@@ -1,13 +1,19 @@
 package router
 
 const (
-	RootRoute     = "/"
-	APIRoute      = "/api"
-	RegisterRoute = "/register"
-	LoginRoute    = "/login"
-	LogoutRoute   = "/logout"
-	UsersRoute    = "/users"
-	MessageRoute  = "/message"
+	UUIDParam = "uuid"
+)
+
+const (
+	RootRoute              = "/"
+	APIRoute               = "/api"
+	RegisterRoute          = "/register"
+	LoginRoute             = "/login"
+	LogoutRoute            = "/logout"
+	UsersRoute             = "/users"
+	PictureRoute           = "/picture/"
+	PictureRouteWithParams = PictureRoute + ":" + UUIDParam
+	MessageRoute           = "/message"
 )
 
 const (

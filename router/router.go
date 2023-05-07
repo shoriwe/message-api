@@ -25,6 +25,7 @@ func New(c *controller.Controller, e *gin.Engine) *Router {
 	auth := api.Group(RootRoute, r.Authenticate)
 	auth.POST(LogoutRoute, r.Logout)
 	auth.POST(UsersRoute, r.Users)
+	auth.GET(PictureRouteWithParams, r.DownloadPicture)
 	auth.PUT(MessageRoute, r.SendMessage)
 	return r
 }

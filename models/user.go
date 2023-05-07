@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/mail"
 	"regexp"
@@ -15,25 +16,29 @@ const DefaultPasswordCost = 12
 
 type User struct {
 	Model
-	Email            *string   `json:"email,omitempty" gorm:"unique;not null"`
-	Password         *string   `json:"password,omitempty" gorm:"-"`
-	PasswordHash     []byte    `json:"-" gorm:"not null;"`
-	ProfilePicture   []byte    `json:"profilePicture,omitempty" gorm:"not null"`
-	Name             *string   `json:"name,omitempty" gorm:"not null"`
-	PhoneNumber      *string   `json:"phoneNumber,omitempty" gorm:"unique;not null"`
-	Job              *string   `json:"job,omitempty" gorm:"not null"`
-	Devices          []Device  `json:"devices,omitempty" gorm:"constraint:OnDelete:CASCADE;"`
-	MessagesSent     []Message `json:"messagesSent,omitempty" gorm:"constraint:OnDelete:CASCADE;foreignKey:SenderUUID"`
-	MessagesReceived []Message `json:"messagesReceived,omitempty" gorm:"constraint:OnDelete:CASCADE;foreignKey:RecipientUUID"`
+	Email               *string   `json:"email,omitempty" gorm:"unique;not null"`
+	Password            *string   `json:"password,omitempty" gorm:"-"`
+	PasswordHash        []byte    `json:"-" gorm:"not null;"`
+	ProfilePicture      *string   `json:"profilePicture,omitempty" gorm:"-"`
+	ProfilePictureBytes []byte    `json:"-" gorm:"not null"`
+	Name                *string   `json:"name,omitempty" gorm:"not null"`
+	PhoneNumber         *string   `json:"phoneNumber,omitempty" gorm:"unique;not null"`
+	Job                 *string   `json:"job,omitempty" gorm:"not null"`
+	Devices             []Device  `json:"devices,omitempty" gorm:"constraint:OnDelete:CASCADE;"`
+	MessagesSent        []Message `json:"messagesSent,omitempty" gorm:"constraint:OnDelete:CASCADE;foreignKey:SenderUUID"`
+	MessagesReceived    []Message `json:"messagesReceived,omitempty" gorm:"constraint:OnDelete:CASCADE;foreignKey:RecipientUUID"`
 }
+
+const TestingImage = "JPEG IMAGE"
 
 func RandomUser() *User {
 	password := random.String()[:72]
 	person := gofakeit.NewCrypto().Person()
+	picture := base64.StdEncoding.EncodeToString([]byte(TestingImage))
 	return &User{
 		Password:       &password,
 		Email:          &person.Contact.Email,
-		ProfilePicture: []byte("JPEG IMAGE"),
+		ProfilePicture: &picture,
 		Name:           &person.FirstName,
 		PhoneNumber:    &person.Contact.Phone,
 		Job:            &person.Job.Title,
@@ -87,5 +92,10 @@ func (u *User) BeforeCreate(tx *gorm.DB) error {
 	if pErr != nil {
 		return pErr
 	}
-	return nil
+	if u.ProfilePicture == nil {
+		return fmt.Errorf("no image provided")
+	}
+	var dErr error
+	u.ProfilePictureBytes, dErr = base64.StdEncoding.DecodeString(*u.ProfilePicture)
+	return dErr
 }
