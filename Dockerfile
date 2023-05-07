@@ -13,7 +13,7 @@ COPY --from=build-stage /message-api /message-api
 WORKDIR /message-api-config
 WORKDIR /message-api-config/database
 WORKDIR /message-api-config/configuration
-WORKDIR /message-api
+WORKDIR /
 # -- Environment variables
 ENV DATABASE_FILE               "/message-api-config/database/database.db"
 ENV SECRET                      "TESTING"
