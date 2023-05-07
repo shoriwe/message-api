@@ -18,7 +18,9 @@ func TestJWT(t *testing.T) {
 		tok, err := jwt.Parse(jwtTok, j.KeyFunc)
 		assert.Nil(tt, err)
 		assert.True(tt, tok.Valid)
-		assert.Equal(tt, s.UserUUID.String(), tok.Claims.(jwt.MapClaims)["userUUID"])
-		assert.Equal(tt, s.FirebaseToken, tok.Claims.(jwt.MapClaims)["firebaseToken"])
+		ss, sErr := NewSessionFromToken(tok)
+		assert.Nil(tt, sErr)
+		assert.Equal(tt, s.UserUUID, ss.UserUUID)
+		assert.Equal(tt, s.FirebaseToken, ss.FirebaseToken)
 	})
 }
