@@ -10,6 +10,7 @@ require (
 	github.com/glebarez/sqlite v1.8.0
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/satori/go.uuid v1.2.0
+	github.com/sethvargo/go-envconfig v0.9.0
 	github.com/stretchr/testify v1.8.2
 	golang.org/x/crypto v0.8.0
 	google.golang.org/api v0.121.0
